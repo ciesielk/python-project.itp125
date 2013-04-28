@@ -32,6 +32,9 @@ media_files = {'male':
                  }
               }
 
+default_files = ['m-b1-hello.mp3', 'm-b2-have_dialed.mp3', 'f-b1-hello_caller.mp3', 'f-b2-lady_at.mp3', 'm-r0-cannot_come_to_phone.mp3',
+        'f-r0.1-unable_to_take_call.mp3', 'f-r0.2-she_is_busy.mp3', 'm-leave_a_message.mp3', 'm-youre_welcome.mp3']
+
 #initializes the global list of filenames
 mp3_file_list = list()
 
@@ -188,7 +191,7 @@ def printContextualMenu(type_arg, delim = ''):
 def checkOutputFile(arg):
     file = str(arg)
     if(file in numeric_file_strings or file in media_files['male']['reasons'][1] or file in media_files['male']['endings'][1]
-       or file in media_files['female']['reasons'][1] or file in media_files['female']['endings'][1]):
+       or file in media_files['female']['reasons'][1] or file in media_files['female']['endings'][1] or file in default_files):
         return False
     else:
         return True
@@ -376,7 +379,7 @@ def handleCommandLineArgs():
 
     if(gender == 'male'):
         mp3_file_list.append('m-leave_a_message.mp3')
-    mp3_file_list.append('m-youre_welcome.mp3')
+        mp3_file_list.append('m-youre_welcome.mp3')
 
 ##
 # Main program
