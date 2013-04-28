@@ -38,6 +38,7 @@ mp3_file_list = list()
 #global vars
 gender = ''
 outputFile = ''
+helpMenu = False
 
 ## Function retrieveGender(arg)
 # this function will set the global gender var
@@ -304,7 +305,12 @@ def printCommandLineOptions():
 ## Function handleCommandLineArgs()
 # This function simply handles the commandline approach of the problem, and can start the walkthrough
 def handleCommandLineArgs():
-    global outputFile
+    global outputFile, helpMenu
+    hasGender = False
+    hasPhoneNumber = False
+    hasReasons = False
+    hasEndings = False
+    hasOutputFile = False
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'g:n:r:e:o:', ["assist","help"])
     except getopt.GetoptError as e:
@@ -315,32 +321,56 @@ def handleCommandLineArgs():
         createMP3FileWithPrompts()
     elif('--help' in options):
         printCommandLineOptions()
+        helpMenu = True
     else:
+        #because other data hinges on g, find it first
+        if('-g' in options):
+            for o, a in opts:
+                if(o == '-g'):
+                    try:
+                        retrieveGender(a)
+                        hasGender = True
+                    except Exception as e:
+                        raise e
+        else:
+            raise Exception('Missing gender')
+
+        #handle everything else
         for o, a in opts:
-            if(o == '-g'):
-                try:
-                    retrieveGender(a)
-                except Exception as e:
-                    raise e
-            elif(o == '-n'):
+            if(o == '-n'):
                 try:
                     getPhoneNumber(a)
+                    hasPhoneNumber = True
                 except Exception as e:
                     raise e
             elif(o == '-r'):
                 try:
                     retrieveMedia(a, 'reasons')
+                    hasReasons = True
                 except Exception as e:
                     raise e
             elif(o == '-e'):
                 try:
                     retrieveMedia(a, 'endings')
+                    hasEndings = True
                 except Exception as e:
                     raise e
             elif(o == '-o'):
                 outputFile = str(a)
+                hasOutputFile = True
                 if(not checkOutputFile(outputFile)):
                     raise Exception('Output filename invalid, please use different name')
+    if(not hasGender):
+        raise Exception('Missing gender')
+    elif(not hasPhoneNumber):
+        raise Exception('Missing phone number')
+    elif(not hasReasons):
+        raise Exception('Missing reasons')
+    elif(not hasEndings):
+        raise Exception('Missing endings')
+    elif(not hasOutputFile):
+        raise Exception('Missing output file')
+
     if(gender == 'male'):
         mp3_file_list.append('m-leave_a_message.mp3')
     mp3_file_list.append('m-youre_welcome.mp3')
@@ -349,7 +379,7 @@ def handleCommandLineArgs():
 # Main program
 def main():
     global mp3_file_list
-    global outputFile
+    global outputFile, helpMenu
 
     mp3_file_list = list()
     try:
@@ -362,6 +392,8 @@ def main():
         print('\tuser \'--help\' for list of options')
         return
 
+    if(helpMenu):
+        return
     #check OS
     dir = os.getcwd()
 
@@ -380,7 +412,7 @@ def main():
     delete = 'rm '
     if(platform.system() == 'Windows'):
         slash = '\\'
-        command = 'copy \\b *.mp3 '
+        command = 'copy /b '
         delete = 'DEL '
         commandOperator = ' '
 
@@ -402,18 +434,21 @@ def main():
     for string in mp3_file_list:
         if(not started):
             logfile.write(str(string))
-            started = True
             #print(str(string)),
         else:
             logfile.write('\n'+str(string))
             #print(' ' + str(string)),
 
         fragment_path = str(dir) + str(slash) + string
-        command = command + ' ' + string
+        if(platform.system() == 'Windows' and started):
+            command = command + ' + ' + string
+        else:
+            command = command + ' ' + string
         frag_file = open(fragment_path, 'w')
         #get the necessary files from the internet
         urllib.urlretrieve('http://www-scf.usc.edu/~chiso/oldspice/'+str(string), fragment_path)
         frag_file.close()
+        started = True
     #print('')
 
     file_temp = open(outputFile, 'w')
