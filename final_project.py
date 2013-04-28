@@ -6,9 +6,10 @@ import os
 import urllib
 from subprocess import call
 
+#holds all of the filenames of numeric option-files
 numeric_file_strings = ['0.mp3', '1.mp3', '2.mp3', '3.mp3', '4.mp3', '5.mp3', '6.mp3', '7.mp3', '8.mp3', '9.mp3']
 
-#
+#holds all filenames of non-numeric option-files
 media_files = {'male':
                  {'endings': [
                         ['Riding a Horse', 'Listening to a jingle', 'On a phone', 'Swan dive', 'Voicemail'],
@@ -31,10 +32,17 @@ media_files = {'male':
                  }
               }
 
+#initializes the global list of filenames
 mp3_file_list = list()
+
+#global vars
 gender = ''
 outputFile = ''
 
+## Function retrieveGender(arg)
+# this function will set the global gender var
+# to the appropriate value and then add the starting default mp3 files
+# @param arg the string argument that is a gender, either 'm' or 'f', otherwise raising an exception
 def retrieveGender( arg ):
     if(str(arg) == 'm'):
         global gender
@@ -46,9 +54,14 @@ def retrieveGender( arg ):
         mp3_file_list.append('f-b1-hello_caller.mp3')
         mp3_file_list.append('f-b2-lady_at.mp3')
     else:
-        #raise error message
+        #raise error message if neither
         raise Exception(arg)
 
+## Function keyIsInvalid(key_arg, type)
+# This function checks to see if the value of the index is valid
+# @param key_arg the integer value of the index of the option
+# @param type the string argument of the type of value the index refers too, i.e. 'reasons' or 'endings'
+# @return True if the key is valid, false otherwise
 def keyIsInvalid(key_arg, type):
     key = int(key_arg)
     value_type = str(type)
@@ -79,6 +92,8 @@ def keyIsInvalid(key_arg, type):
         else:
             return True
 
+## Function addStandardReasons()
+# This function will just add standard reasons (introductions to the reasons) for the correct gender
 def addStandardReasons():
     if(gender == 'male'):
         mp3_file_list.append('m-r0-cannot_come_to_phone.mp3')
@@ -88,7 +103,11 @@ def addStandardReasons():
     else:
         raise Exception('Gender not initialized to correct value')
 
-
+## Function retrieveMedia(input_arg, type_arg)
+# This function will add all appropriate mp3 files to the list for
+# the numerical fields like reasons and endings
+# @param input_arg the number input for the options to add
+# @param type_arg the type of the arg, i.e. 'reasons' or 'endings'
 def retrieveMedia(input_arg, type_arg):
     length = len(str(input_arg))
     integerArg = int(input_arg)
@@ -115,7 +134,9 @@ def retrieveMedia(input_arg, type_arg):
             mp3_file_list.append(media_files[gender][type][1][value-1])
             usedList.append(value)
 
-
+##Function getPhoneNumber(input_arg)
+# Checks to see if the phone-number is in a valid form for entry and then adds
+# the appropriate mp3 filenames to the list
 def getPhoneNumber(input_arg):
     input = str(input_arg)
     tempList = list()
@@ -145,15 +166,21 @@ def getPhoneNumber(input_arg):
     for string in tempList:
         mp3_file_list.append(string)
 
-
-def printContextualMenu(type_arg):
+## Function printContextualMenu(type_arg)
+# This function will print a help menu for the correct type
+# @param type_arg the type of the menu, i.e. 'reasons' or 'endings'
+# @param the delimiter for each line
+def printContextualMenu(type_arg, delim = ''):
     type = str(type_arg)
     val_list = media_files[gender][type][1];
     key_list = media_files[gender][type][0];
 
     for i in range(len(val_list)):
-        print('['+str(i+1)+'] '+key_list[i])
+        print(str(delim)+'['+str(i+1)+'] '+key_list[i])
 
+## Function that checks to see if a file is in one of the reserved filenames --
+# one of the one's we'd want to download later
+# @param arg the file we're going to check
 def checkOutputFile(arg):
     file = str(arg)
     if(file in numeric_file_strings or file in media_files['male']['reasons'][1] or file in media_files['male']['endings'][1]
@@ -162,13 +189,16 @@ def checkOutputFile(arg):
     else:
         return True
 
-
+## Function createMP3FileWithPrompts()
+# Formats all of the options in the filename list in a walkthrough style
 def createMP3FileWithPrompts():
     global mp3_file_list, outputFile
 
     while(True):
         inputVal = raw_input('What gender are you? (m/f): ')
         try:
+            if(inputVal == ''):
+                continue
             retrieveGender(inputVal)
             break
         except:
@@ -178,11 +208,13 @@ def createMP3FileWithPrompts():
     while(True):
         try:
             phoneNumber = raw_input('\nWhat is your phone number? ')
+            if(phoneNumber == ''):
+                continue
             getPhoneNumber(phoneNumber)
             break
         except:
             print('\tError: Enter correct phone Number in the following form:')
-            composite = '0123456789'
+            composite = '1234567890'
             stringType1 = composite[:3]+'-'+composite[3:6]+'-'+composite[6:]
             stringType2 = '('+composite[:3]+') '+composite[3:6]+'-'+composite[6:]
             stringType3 = composite[:3]+'.'+composite[3:6]+'.'+composite[6:]
@@ -198,10 +230,11 @@ def createMP3FileWithPrompts():
     print('')
     printContextualMenu('reasons')
 
-    reasonKey = raw_input('\nWhat reason(s) would you like in your message (numbers above): ')
-
     while(True):
         try:
+            reasonKey = raw_input('\nWhat reason(s) would you like in your message (numbers above): ')
+            if(reasonKey == ''):
+                continue
             retrieveMedia(reasonKey, 'reasons')
             break
         except Exception as e:
@@ -210,11 +243,13 @@ def createMP3FileWithPrompts():
 
     print('')
     printContextualMenu('endings')
-    endingKey = raw_input('\nWhat ending(s) would you like in your message (numbers above): ')
 
     #handle endings
     while(True):
         try:
+            endingKey = raw_input('\nWhat ending(s) would you like in your message (numbers above): ')
+            if(endingKey == ''):
+                continue
             retrieveMedia(endingKey, 'endings')
             break
         except Exception as e:
@@ -223,6 +258,8 @@ def createMP3FileWithPrompts():
 
     while(True):
         outputFile = raw_input("\nWhat would you like the name of this file to be: ")
+        if(outputFile == ''):
+            continue
         if(checkOutputFile(outputFile)):
             break
 
@@ -231,19 +268,53 @@ def createMP3FileWithPrompts():
         mp3_file_list.append('m-leave_a_message.mp3')
         mp3_file_list.append('m-youre_welcome.mp3')
 
+## Function printCommandLineOptions()
+# print the command-line options for the --help menu
+def printCommandLineOptions():
+    global gender
+    print('Command Line options: ')
+    print('\t-g\tmale or female (m/f)')
+    print('\t-n\tphone number in one of the following formats: ')
+    composite = '1234567890'
+    stringType1 = composite[:3]+'-'+composite[3:6]+'-'+composite[6:]
+    stringType2 = '('+composite[:3]+') '+composite[3:6]+'-'+composite[6:]
+    stringType3 = composite[:3]+'.'+composite[3:6]+'.'+composite[6:]
+    stringType4 = composite[0:]
+    print('\t\t\t'+stringType1)
+    print('\t\t\t'+stringType2)
+    print('\t\t\t'+stringType3)
+    print('\t\t\t'+stringType4)
+    print('\t-r\treasons: pick any of the following options (use one number):')
+    print('\t\t\tmale: ')
+    gender = 'male'
+    printContextualMenu('reasons', '\t\t\t\t')
+    print('\t\t\tfemale: ')
+    gender = 'female'
+    printContextualMenu('reasons', '\t\t\t\t')
+    print('\t-e\tendings: pick any of the following options (use one number):')
+    print('\t\t\tmale: ')
+    gender = 'male'
+    printContextualMenu('endings', '\t\t\t\t')
+    print('\t\t\tfemale: ')
+    gender = 'female'
+    printContextualMenu('endings', '\t\t\t\t')
+    print('\t-o\toutput filename, not path')
+    print('\n\t--assist\twalkthrough of this process')
 
-
-
+## Function handleCommandLineArgs()
+# This function simply handles the commandline approach of the problem, and can start the walkthrough
 def handleCommandLineArgs():
     global outputFile
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'g:n:r:e:o:', ["help"])
+        opts, args = getopt.getopt(sys.argv[1:], 'g:n:r:e:o:', ["assist","help"])
     except getopt.GetoptError as e:
         print('Other problem')
         sys.exit(2)
     options, args = zip(*opts)
-    if('--help' in options):
+    if('--assist' in options):
         createMP3FileWithPrompts()
+    elif('--help' in options):
+        printCommandLineOptions()
     else:
         for o, a in opts:
             if(o == '-g'):
@@ -274,27 +345,34 @@ def handleCommandLineArgs():
         mp3_file_list.append('m-leave_a_message.mp3')
     mp3_file_list.append('m-youre_welcome.mp3')
 
+##
+# Main program
 def main():
     global mp3_file_list
     global outputFile
 
     mp3_file_list = list()
     try:
+        #use the commandline arguments
         handleCommandLineArgs()
     except Exception as e:
         print('error')
         print(e)
-        print('\tUse \'--help\' for step-by-step process')
+        print('\tUse \'--assist\' for step-by-step process')
+        print('\tuser \'--help\' for list of options')
         return
 
+    #check OS
     dir = os.getcwd()
 
+    #format the output file to just have one .mp3 at the end
     filename = outputFile
     fileType = outputFile[len(outputFile)-4:]
     if(not fileType == '.mp3'):
         outputFile = outputFile+'.mp3'
         filename = filename+'.mp3'
     name = outputFile[:len(outputFile)-4]
+
 
     slash = '/'
     command = 'cat'
@@ -306,6 +384,7 @@ def main():
         delete = 'DEL '
         commandOperator = ' '
 
+    #format file for correct OS
     outputFile = str(dir)+str(slash)+str(outputFile)
     outputTextFile = str(dir) + str(slash) + str(name) + '.txt'
 
@@ -314,28 +393,31 @@ def main():
     logfile.write('')
     logfile.close()
 
-
-
+    #output new outputTextFile
     logfile = open(str(outputTextFile), 'a')
     started = False
     #command = 'copy ' + str(option) + 'b '+folderPath+'*.mp3 '+outputFile
+
+    #write information to the textfile
     for string in mp3_file_list:
         if(not started):
             logfile.write(str(string))
             started = True
-            print(str(string)),
+            #print(str(string)),
         else:
             logfile.write('\n'+str(string))
-            print(' ' + str(string)),
+            #print(' ' + str(string)),
 
         fragment_path = str(dir) + str(slash) + string
         command = command + ' ' + string
         frag_file = open(fragment_path, 'w')
+        #get the necessary files from the internet
         urllib.urlretrieve('http://www-scf.usc.edu/~chiso/oldspice/'+str(string), fragment_path)
         frag_file.close()
-    print('')
+    #print('')
 
     file_temp = open(outputFile, 'w')
+    #format command
     cmd = command + commandOperator + filename
     file_temp.close()
     os.system(cmd)
@@ -349,9 +431,8 @@ def main():
             deleted_list.append(fragment_path)
             os.system(delete + ' ' + fragment_path)
 
+    #close logfile
     logfile.close()
 
-
+#run main, which contains the program
 main()
-#handleCommandLineArgs()
-#print(mp3_file_list)
