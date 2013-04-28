@@ -128,8 +128,11 @@ def retrieveMedia(input_arg, type_arg):
     for i in range(length):
         index = length-i-1
         value = digits[index]
-        if(keyIsInvalid(value, type) or value in usedList):
-            raise Exception(value)
+        if(value in usedList):
+            raise Exception(str(type_arg) + ' #' + str(value) + ' is already used')
+            return
+        elif(keyIsInvalid(value, type)):
+            raise Exception(str(type_arg) + ' #' + str(value) + ' does not exist')
             return
         else:
             mp3_file_list.append(media_files[gender][type][1][value-1])
@@ -386,10 +389,10 @@ def main():
         #use the commandline arguments
         handleCommandLineArgs()
     except Exception as e:
-        print('error')
-        print(e)
-        print('\tUse \'--assist\' for step-by-step process')
-        print('\tuser \'--help\' for list of options')
+        print('Error:')
+        print('\t'+ str(e.args[0]))
+        print('\n** Use \'--assist\' for step-by-step process')
+        print('** Use \'--help\' for list of options')
         return
 
     if(helpMenu):
