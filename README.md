@@ -23,3 +23,43 @@ Because different operating systems have different ways of creating mp3 files, t
 
 ###Clean-up
 The application downloads several files from the internet, but we really don't want the user to retain these files. So instead, the program, using the proper commands for the corresponding operating system, removes those files from the system, to clean-up the location for the user. 
+
+##Version
+Python 2.7 and Python 3.3 should both work.
+
+##Command-line options
+Command Line options: 
+```shell
+  -g	male or female (m/f)
+	-n	phone number in one of the following formats: 
+			123-456-7890
+			(123) 456-7890
+			123.456.7890
+			1234567890
+	-r	reasons: pick any of the following options (use one number):
+			male: 
+				[1] On top of a building
+				[2] Cracking Walnuts
+				[3] Polishing a monocle
+				[4] Ripping weights
+			female: 
+				[1] Ingesting Old Spice
+				[2] Listening to Reading
+				[3] Lobster Dinner
+				[4] Moon Kiss
+				[5] Riding a Horse
+	-e	endings: pick any of the following options (use one number):
+			male: 
+				[1] Riding a Horse
+				[2] Listening to a jingle
+				[3] On a phone
+				[4] Swan dive
+				[5] Voicemail
+			female: 
+				[1] She will get back to you
+				[2] Thanks for Calling
+	-o	output filename, not path
+
+	--assist	walkthrough of this process
+```
+> Note that not all possible options used will appear here because some are used by default to make the .mp3 make more sense
