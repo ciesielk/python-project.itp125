@@ -59,7 +59,7 @@ def retrieveGender( arg ):
         mp3_file_list.append('f-b2-lady_at.mp3')
     else:
         #raise error message if neither
-        raise Exception(arg)
+        raise Exception('\''+str(arg) + '\' is not a valid gender')
 
 ## Function keyIsInvalid(key_arg, type)
 # This function checks to see if the value of the index is valid
@@ -200,13 +200,14 @@ def checkOutputFile(arg):
 # Formats all of the options in the filename list in a walkthrough style
 def createMP3FileWithPrompts():
     global mp3_file_list, outputFile
-
+    global hasGender, hasPhoneNumber, hasReasons, hasEndings, hasOutputFile
     while(True):
         inputVal = raw_input('What gender are you? (m/f): ')
         try:
             if(inputVal == ''):
                 continue
             retrieveGender(inputVal)
+            hasGender = True
             break
         except:
             print('\tError: Use correct gender')
@@ -218,6 +219,7 @@ def createMP3FileWithPrompts():
             if(phoneNumber == ''):
                 continue
             getPhoneNumber(phoneNumber)
+            hasPhoneNumber = True
             break
         except:
             print('\tError: Enter correct phone Number in the following form:')
@@ -243,6 +245,7 @@ def createMP3FileWithPrompts():
             if(reasonKey == ''):
                 continue
             retrieveMedia(reasonKey, 'reasons')
+            hasReasons = True
             break
         except Exception as e:
             print('\tError: This is a reason issue: '+ str(e))
@@ -258,6 +261,7 @@ def createMP3FileWithPrompts():
             if(endingKey == ''):
                 continue
             retrieveMedia(endingKey, 'endings')
+            hasEndings = True
             break
         except Exception as e:
             print('This is an ending issue: ' + str(e))
@@ -267,8 +271,16 @@ def createMP3FileWithPrompts():
         outputFile = raw_input("\nWhat would you like the name of this file to be: ")
         if(outputFile == ''):
             continue
+
+        fileType = outputFile[len(outputFile)-4:]
+        if(not fileType == '.mp3'):
+            outputFile = outputFile+'.mp3'
+
         if(checkOutputFile(outputFile)):
+            hasOutputFile = True
             break
+
+        print('This is a reserved filename, please use a different one')
 
     #add default endings if applicable
     if(gender == 'male'):
@@ -308,20 +320,22 @@ def printCommandLineOptions():
     print('\t-o\toutput filename, not path')
     print('\n\t--assist\twalkthrough of this process')
 
+#some globals for error-checking
+hasGender = False
+hasPhoneNumber = False
+hasReasons = False
+hasEndings = False
+hasOutputFile = False
+
 ## Function handleCommandLineArgs()
 # This function simply handles the commandline approach of the problem, and can start the walkthrough
 def handleCommandLineArgs():
     global outputFile, helpMenu
-    hasGender = False
-    hasPhoneNumber = False
-    hasReasons = False
-    hasEndings = False
-    hasOutputFile = False
+    global hasGender, hasPhoneNumber, hasReasons, hasEndings, hasOutputFile
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'g:n:r:e:o:', ["assist","help"])
     except getopt.GetoptError as e:
-        print('Other problem')
-        sys.exit(2)
+        raise Exception('Invalid argument: ' + str(e))
     options, args = zip(*opts)
     if('--assist' in options):
         createMP3FileWithPrompts()
@@ -363,9 +377,12 @@ def handleCommandLineArgs():
                     raise e
             elif(o == '-o'):
                 outputFile = str(a)
+                fileType = outputFile[len(outputFile)-4:]
+                if(not fileType == '.mp3'):
+                    outputFile = outputFile+'.mp3'
                 hasOutputFile = True
                 if(not checkOutputFile(outputFile)):
-                    raise Exception('Output filename invalid, please use different name')
+                    raise Exception('Output filename reserved, please use different name')
     if(not hasGender):
         raise Exception('Missing gender')
     elif(not hasPhoneNumber):
