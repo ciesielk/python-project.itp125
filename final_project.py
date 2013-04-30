@@ -343,6 +343,7 @@ def handleCommandLineArgs():
     elif('--help' in options):
         printCommandLineOptions()
         helpMenu = True
+        return
     else:
         #because other data hinges on g, find it first
         if('-g' in options):
