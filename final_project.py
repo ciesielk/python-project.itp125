@@ -1,4 +1,5 @@
-__author__ = 'MSILKJR'
+__author__ = 'Michael Ciesielka'
+__date__ = '4/30/13'
 
 import getopt, sys
 import platform
